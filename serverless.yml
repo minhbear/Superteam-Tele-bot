@@ -1,0 +1,52 @@
+service: AWS-Lambda-Boilerplate
+
+frameworkVersion: '3'
+
+custom:
+  stage: ${self:provider.stage}
+  baseName: ${self:service}-${self:custom.stage}
+  webpack:
+    webpackConfig: ./webpack.config.ts
+    includeModules:
+      forceExclude:
+        - aws-lambda
+  serverless-offline:
+    useChildProcesses: true
+    lambdaPort: 4002
+    httpPort: 3002
+  prune:
+    automatic: true
+    number: 3
+
+useDotenv: true
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-webpack
+  - serverless-offline
+  - serverless-prune-plugin
+  - serverless-domain-manager
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'ap-east-1'}
+
+  # Example configuration for AWS-Lambda had role and permission to work with DynamoDB
+  # iamRoleStatements:
+    # - Effect: 'Allow'
+    #   Action: 
+    #     - dynamodb:Query
+    #     - dynamodb:Scan
+    #     - dynamodb:GetItem
+    #     - dynamodb:PutItem
+    #   Resource: "*"
+
+# Configure the resource in resource folder and import in here
+# Resources:  
+#   - ${file(./resources/sqs.yml)}
+#   - ${file(./resources/dynamodb.yml)}
+
+functions: 
+  - ${file(./resources/lambdas/hello.yml)}
