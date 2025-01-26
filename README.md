@@ -1,1 +1,1 @@
-# Superteam-Tele-bot
+# SuperTeam Tele Bot

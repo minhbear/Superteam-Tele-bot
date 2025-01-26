@@ -1,52 +1,33 @@
-service: AWS-Lambda-Boilerplate
+service: Superteam_Tele_Bot
 
-frameworkVersion: '3'
-
-custom:
-  stage: ${self:provider.stage}
-  baseName: ${self:service}-${self:custom.stage}
-  webpack:
-    webpackConfig: ./webpack.config.ts
-    includeModules:
-      forceExclude:
-        - aws-lambda
-  serverless-offline:
-    useChildProcesses: true
-    lambdaPort: 4002
-    httpPort: 3002
-  prune:
-    automatic: true
-    number: 3
-
-useDotenv: true
-
-plugins:
-  - serverless-dotenv-plugin
-  - serverless-webpack
-  - serverless-offline
-  - serverless-prune-plugin
-  - serverless-domain-manager
+frameworkVersion: "3"
 
 provider:
   name: aws
   runtime: nodejs18.x
-  stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'ap-east-1'}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: "s3:ListBucket"
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - "s3:*"
+          Resource:
+            - "arn:aws:s3:::<bucket-name>/*"
 
-  # Example configuration for AWS-Lambda had role and permission to work with DynamoDB
-  # iamRoleStatements:
-    # - Effect: 'Allow'
-    #   Action: 
-    #     - dynamodb:Query
-    #     - dynamodb:Scan
-    #     - dynamodb:GetItem
-    #     - dynamodb:PutItem
-    #   Resource: "*"
+functions:
+  webhook:
+    handler: index.webhook
+    events:
+      - http:
+          path: webhook
+          method: post
+    timeout: 30
 
-# Configure the resource in resource folder and import in here
-# Resources:  
-#   - ${file(./resources/sqs.yml)}
-#   - ${file(./resources/dynamodb.yml)}
+plugins:
+  - serverless-plugin-typescript
+  - serverless-dotenv-plugin
 
-functions: 
-  - ${file(./resources/lambdas/hello.yml)}
+useDotenv: true

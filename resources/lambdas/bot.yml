@@ -1,8 +1,0 @@
-hello:
-  handler: src/services/bot/index.handler
-  reservedConcurrency: 10
-  timeout: 900
-  events:
-    - httpApi:
-        path: /hello
-        method: get
