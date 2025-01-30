@@ -62,17 +62,22 @@ function setupBotListeners(bot: TelegramBot) {
     globalResolve("ok");
   });
 
-  bot.onText(/\/upload-docs/, async (msg) => {
+  bot.onText(/\/helps/, async (msg) => {
     const chatId = msg.chat.id;
     await bot.sendMessage(
       chatId,
-      "📄 Please upload the document you want to add to the Knowledge Base."
+      "To Chat with me, type /chat <your question>.\nTo upload a document, send it to me with pin code."
     );
   });
 
   bot.on("document", async (msg) => {
     const chatId = msg.chat.id;
     const fileId = msg.document?.file_id;
+    const pinCode = msg.caption;
+    if (!pinCode || Number(pinCode) !== Number(process.env.PIN_CODE)) {
+      await bot.sendMessage(chatId, "❌ Invalid pin code. Please try again.");
+      return;
+    }
 
     if (!fileId) {
       await bot.sendMessage(chatId, "❌ No document found. Please try again.");
