@@ -3,6 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import axios from "axios";
 import fs from "fs";
 import { S3 } from "aws-sdk";
+import { WebCrawlerUrlData } from "./type";
 
 const s3 = new S3();
 const botToken = process.env.TELE_BOT_TOKEN as string;
@@ -66,7 +67,29 @@ function setupBotListeners(bot: TelegramBot) {
     const chatId = msg.chat.id;
     await bot.sendMessage(
       chatId,
-      "To Chat with me, type /chat <your question>.\nTo upload a document, send it to me with pin code."
+      `🤖 *AI Bot Commands*       
+      🔹 **Chat with AI**  
+      \`/chat <question>\` - Ask the bot any question.  
+
+      🔹 **Admin Commands** *(Users with Pin Code can use these)*  
+      \`/get-seed-urls pinCode:<pincode>\` - Retrieve the current list of seed URLs used for the Knowledge Base.  
+
+      🔹 **Update Knowledge Base for AI Bot**  
+      Our AI uses *two data sources*: *Web Crawling* & *Text Files*.  
+
+      🌐 **Using Web Crawling**  
+      \`/update-seed-urls url:url1,url2 pinCode:<pincode>\`  
+      - Adds new website URLs to the Knowledge Base.  
+      - The bot will sync data from the websites *once per day*.  
+
+      📄 **Using Text Files**  
+      - Upload a txt file containing information for the AI.  
+      - In the caption, include:  \`pinCode:<pincode>\`  
+      - The file content will be added to the AI’s Knowledge Base.  
+
+      ⚡ *Ensure the URLs are static and the text file contains structured data for better AI training!*  
+      `,
+      { parse_mode: "Markdown" }
     );
   });
 
@@ -85,14 +108,11 @@ function setupBotListeners(bot: TelegramBot) {
     }
 
     try {
-      // Get the file URL from Telegram
       const file = await bot.getFile(fileId);
       const fileUrl = `https://api.telegram.org/file/bot${botToken}/${file.file_path}`;
 
-      // Notify the user of the file URL
       await bot.sendMessage(chatId, `fileUrl: ${fileUrl}`);
 
-      // Download the file
       const fileName = msg.document?.file_name || "uploaded_document";
       const filePath = `/tmp/${fileName}`;
       const writer = fs.createWriteStream(filePath);
@@ -110,7 +130,6 @@ function setupBotListeners(bot: TelegramBot) {
         writer.on("error", reject);
       });
 
-      // Upload to S3
       const s3Key = `knowledge-base/${fileName}_${Date.now()}`;
       const fileContent = fs.readFileSync(filePath);
 
@@ -127,7 +146,6 @@ function setupBotListeners(bot: TelegramBot) {
         `✅ Document uploaded successfully to Knowledge Base as "${fileName}".`
       );
 
-      // Clean up
       fs.unlinkSync(filePath);
     } catch (error) {
       console.error("Error handling document upload:", error);
@@ -135,5 +153,117 @@ function setupBotListeners(bot: TelegramBot) {
     }
 
     globalResolve("ok");
+  });
+
+  bot.onText(/\/get-seed-urls (.+)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    if (match === null) {
+      return await bot.sendMessage(
+        chatId,
+        "Invalid format. Please use: /update-seed-urls pinCode: yourPin"
+      );
+    }
+    const text = match[1].trim();
+    try {
+      const pinMatch = text.match(/pinCode:\s*(\S+)/);
+
+      if (!pinMatch) {
+        return bot.sendMessage(
+          chatId,
+          "Invalid format. Please use: \n/get-seed-urls pinCode: yourPin"
+        );
+      }
+
+      const pinCode = pinMatch[1].trim();
+
+      if (Number(pinCode) !== Number(process.env.PIN_CODE)) {
+        return bot.sendMessage(
+          chatId,
+          "❌ Invalid pin code. Please try again."
+        );
+      }
+
+      const responseData = (await axios.get(`${apiBedrock}/urls`))
+        .data as WebCrawlerUrlData;
+
+      const urls = (responseData.seedUrlList || []).map((data) => data.url);
+
+      bot.sendMessage(
+        chatId,
+        "✅ Seed URLs:\n" + urls.map((url) => `- ${url}`).join("\n")
+      );
+    } catch (error) {
+      console.error("Error processing /get-seed-urls:", error);
+      bot.sendMessage(
+        chatId,
+        "❌ Error updating Knowledge Base. Please try again."
+      );
+    }
+  });
+
+  bot.onText(/\/update-seed-urls (.+)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    if (match === null) {
+      return bot.sendMessage(
+        chatId,
+        "Invalid format. Please use: /update-seed-urls url:url1,url2 pinCode: yourPin"
+      );
+    }
+    const text = match[1].trim();
+
+    try {
+      const urlMatch = text.match(/url:([\S]+)/);
+      const pinMatch = text.match(/pinCode:\s*(\S+)/);
+
+      if (!urlMatch || !pinMatch) {
+        return bot.sendMessage(
+          chatId,
+          "Invalid format. Please use: \n/update-seed-urls url:url1,url2 pinCode: yourPin"
+        );
+      }
+
+      const urls = urlMatch[1].split(",").map((url) => url.trim());
+      const pinCode = pinMatch[1].trim();
+
+      const urlRegex = /^(https?:\/\/[^\s]+)$/;
+      if (!urls.every((url) => urlRegex.test(url))) {
+        return bot.sendMessage(
+          chatId,
+          "One or more URLs are invalid. Please provide valid URLs."
+        );
+      }
+
+      if (Number(pinCode) !== Number(process.env.PIN_CODE)) {
+        return bot.sendMessage(
+          chatId,
+          "❌ Invalid pin code. Please try again."
+        );
+      }
+
+      await bot.sendMessage(
+        chatId,
+        `Processing update for:\nURLs: ${urls.join("\n")}`
+      );
+
+      const data = {
+        urlList: urls,
+        exclusionFilters: ["https://www\.examplesite\.com/contact-us\.html"],
+        inclusionFilters: ["https://www\.examplesite\.com/.*\.html"],
+      };
+      const headers = { "Content-Type": "application/json" };
+
+      await axios.post(`${apiBedrock}/web-urls`, data, { headers });
+
+      bot.sendMessage(
+        chatId,
+        "✅ URLs successfully added to the Knowledge Base!"
+      );
+    } catch (error) {
+      console.error("Error processing /update-seed-urls:", error);
+      bot.sendMessage(
+        chatId,
+        "❌ Error updating Knowledge Base. Please try again."
+      );
+    }
   });
 }
