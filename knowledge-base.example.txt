@@ -1,42 +1,30 @@
-# AWS Overview
+Superteam Vietnam: Empowering Web3 Builders in Vietnam
 
-## Amazon Web Services (AWS)
-Amazon Web Services (AWS) is a comprehensive cloud computing platform provided by Amazon. It offers a mix of Infrastructure as a Service (IaaS), Platform as a Service (PaaS), and Software as a Service (SaaS) solutions.
+# Overview
+Superteam Vietnam is a community-driven initiative that focuses on supporting builders, developers, and entrepreneurs in the Web3 space, particularly within the Solana ecosystem. As part of the global Superteam network, their mission is to accelerate the growth of blockchain technology and decentralized applications in Vietnam.
+Mission and Objectives
+Supporting Founders & Projects: Superteam Vietnam provides mentorship, funding opportunities, and technical support for startups and projects building on Solana.
+Education & Community Building: They conduct workshops, hackathons, and educational programs to nurture a skilled Web3 workforce.
+Connecting Talent with Opportunities: Superteam Vietnam bridges the gap between talented individuals and top Web3 projects, offering job placements and freelance opportunities.
+Fostering Innovation: Through grants and bounties, they encourage experimentation and innovation in blockchain solutions.
 
-## AWS Headquarters
-AWS is headquartered in Seattle, Washington, USA. The company also operates regional offices globally, providing localized services and support.
+# Key Activities
 
-## AWS Services Categories
-1. **Compute**: EC2, Lambda, ECS, Elastic Beanstalk
-2. **Storage**: S3, EBS, Glacier
-3. **Database**: RDS, DynamoDB, Redshift
-4. **Networking**: VPC, CloudFront, Route 53
-5. **Machine Learning**: SageMaker, Bedrock
-6. **Security**: IAM, Cognito, GuardDuty
+Hackathons & Developer Programs: Regularly hosts hackathons and training sessions to upskill developers.
+Networking Events: Connects Web3 builders, investors, and enthusiasts through meetups and conferences.
+Educational Content: Publishes Web3 learning materials, guides, and tutorials for beginners and experienced professionals alike.
+Funding & Grants: Helps promising startups access funding through ecosystem grants and investor introductions.
 
-## Popular AWS Services
-- **Amazon S3 (Simple Storage Service)**: Object storage service that provides scalability, security, and performance.
-- **Amazon EC2 (Elastic Compute Cloud)**: Scalable virtual servers in the cloud.
-- **Amazon RDS (Relational Database Service)**: Managed relational database services for SQL databases.
+# Resources & Links
 
-## AWS Global Infrastructure
-AWS operates in multiple regions worldwide. Each region contains Availability Zones (AZs), which are isolated locations within the region. Regions and AZs ensure redundancy and low-latency access to services.
+Official Website: https://vn.superteam.fun/
 
-- **Regions**: Geographically distinct locations like US East (N. Virginia), Asia Pacific (Singapore), and Europe (Ireland).
-- **Availability Zones**: Isolated data centers within regions.
+YouTube Channel: https://www.youtube.com/channel/UCJdJ0tgvjaYDogjSDPC_8hQ
 
-## Pricing Model
-AWS pricing is based on a pay-as-you-go model. Key elements include:
-- Compute hours
-- Data transfer
-- Storage usage
-- API requests
+Twitter (X): https://x.com/SuperteamVN
 
-## Security and Compliance
-AWS provides a secure cloud environment with features like encryption, identity management, and compliance certifications (e.g., ISO 27001, GDPR, HIPAA).
+Facebook Page: https://www.facebook.com/solanasuperteamvietnam
 
-# How to Get Started with AWS
-1. Create an AWS account.
-2. Explore AWS Free Tier for services like S3 and EC2.
-3. Use AWS Management Console, CLI, or SDKs to interact with services.
-4. Follow AWS Well-Architected Framework for best practices.
+Conclusion
+Superteam Vietnam is playing a crucial role in growing the Web3 and blockchain ecosystem in Vietnam. By providing education, funding, and networking opportunities, they empower developers and entrepreneurs to build the future of decentralized technology. Whether you're a builder, investor, or enthusiast, joining Superteam Vietnam is a great way to get involved in the evolving Web3 landscape.
+
